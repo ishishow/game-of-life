@@ -1,0 +1,72 @@
+@startuml 3DLifegame
+
+namespace Lifegame
+{
+    package Rules
+    {
+        interface IRule
+        {
+            +NextAlive(cell:Cell):bool
+        }
+        class Default2D
+    }
+
+    class Cell
+    {
+        -_aroundCells:List<Cell>
+        -isNextAlive:bool
+        +<<property>>AroundCells:IEnumerable<Cell>{ get only }
+        +<<property>>IsAlive:bool
+        +<<property>>Pos:Vector3
+        +AddAroundCell(cell:Cell):PaleVioletRed
+        +SetNextAlive(rule:IRule):void
+        +Next():bool
+    }
+    class CellFactory
+    class Stage
+    {
+        -_map:Cell[,,]
+        +<<property>>Map:Cell[,,]{ get only }
+        +<<property>>Width:int{ private set }
+        +<<property>>Height:int{ private set }
+        +<<property>>Length:int{ private set }
+        +Create(width:int,height:int,length:int,alivers:int):void
+        +Setup():void
+        +RandomAlive(alivers:int):void
+    }
+    class GameManager
+    {
+        -_stage:Stage
+        -_frameDuration:float
+        -_isPause:bool
+        -_rule:IRule
+        -_process:Coroutine
+        -Play():IEnumerator
+        +Setup():void
+    }
+}
+
+enum Direction
+{
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
+class CameraWork
+{
+    -_center:Vector3
+    -_speed:float
+    -_axis:Vector3
+    +Move(direction:Direction):void
+}
+
+interface IFactory<T>
+{
+    +Create():T
+}
+
+CellFactory --> IFactory
+
+@enduml

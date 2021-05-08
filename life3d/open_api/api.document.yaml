@@ -1,0 +1,246 @@
+openapi: 3.0.2
+info:
+  title: LifeGame3D API
+  description: |-
+    <b>LifeGame3DのAPI仕様</b><br>
+  version: 1.0.0
+servers:
+  - url: https://lifegame-3d.herokuapp.com
+tags:
+  - name: user
+    description: ユーザ関連APIs
+  - name: model
+    description: lifeMap関連API
+paths:
+  /user/create:
+    post:
+      tags:
+        - user
+      summary: ユーザ情報作成API
+      description: |
+        ユーザ情報を作成します。<br>
+        ユーザの名前情報をリクエストで受け取り、ユーザIDと認証用のトークンを生成しデータベースへ保存します。<br>
+        tokenは以降の他のAPIコール時にヘッダに設定をします。
+      requestBody:
+        description: Request Body
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCreateRequest"
+        required: true
+      responses:
+        200:
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserCreateResponse"
+      x-codegen-request-body-name: body
+  /user/get:
+    get:
+      tags:
+        - user
+      summary: ユーザ情報取得API
+      description: |
+        ユーザ情報を取得します。
+        「ユーザの認証と特定」の処理はリクエストヘッダの`x-token`を読み取ってデータベースに照会をします。
+      parameters:
+        - name: x-token
+          in: header
+          description: 認証トークン
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserGetResponse"
+  /model/create:
+    post:
+      tags:
+        - model
+      summary: コレクションアイテム一覧情報取得API
+      description: コレクションアイテム一覧情報。
+      parameters:
+        - name: x-token
+          in: header
+          description: 認証トークン
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: A successful response.
+  /model/get:
+    get:
+      tags:
+        - model
+      summary: コレクションアイテム一覧情報取得API
+      description: コレクションアイテム一覧情報。
+      parameters:
+        - name: x-token
+          in: header
+          description: 認証トークン
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetLifeModelResponse"
+  /model/favorite:
+    post:
+      tags:
+        - model
+      summary: コレクションアイテム一覧情報取得API
+      description: コレクションアイテム一覧情報。
+      parameters:
+        - name: x-token
+          in: header
+          description: 認証トークン
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: A successful response.
+  /model/ranking:
+    get:
+      tags:
+        - model
+      summary: コレクションアイテム一覧情報取得API
+      description: コレクションアイテム一覧情報。
+      parameters:
+        - name: x-token
+          in: header
+          description: 認証トークン
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RankingLifeModelResponse"
+  /model/users:
+    get:
+      tags:
+        - model
+      summary: コレクションアイテム一覧情報取得API
+      description: コレクションアイテム一覧情報。
+      parameters:
+        - name: x-token
+          in: header
+          description: 認証トークン
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelUsersResponse"
+components:
+  schemas:
+    UserCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: ユーザ名
+    UserCreateResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: クライアント側で保存するトークン
+    UserGetResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ユーザID
+        name:
+          type: string
+          description: ユーザ名
+    CreateLifeModelRequest:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: ユーザID
+        name:
+          type: string
+          description: ライフモデル名
+        map:
+          type: array
+          items:
+            type: integer
+          description: ライフマップ
+    GetLifeModelRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          description: モデルID
+    GetLifeModelResponse:
+      type: object
+      properties:
+        life_model:
+          type: array
+          items:
+            $ref: "#/components/schemas/LifeModel"
+    RankingLifeModelResponse:
+      type: object
+      properties:
+        life_model_list:
+          type: array
+          items:
+            $ref: "#/components/schemas/LifeModel"
+    ModelUsersResponse:
+      type: object
+      properties:
+        life_model:
+          type: array
+          items:
+            $ref: "#/components/schemas/LifeModel"
+    LifeModel:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID
+        user:
+          $ref: "#/components/schemas/User"
+          description: ユーザー
+        name:
+          type: string
+          description: 名前
+        map:
+          type: string
+          description: マップ
+        favorite:
+          type: integer
+          description: お気に入り数
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID
+        name:
+          type: string
+          description: 名前
+        auth_token:
+          type: string
+          description: 認証トークン
